@@ -1,0 +1,41 @@
+# sbt
+target/
+project/target/
+.bsp/
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VSCode
+.vscode/
+
+# Mac
+.DS_Store
+
+# Scala-specific
+*.class
+*.log
+
+# Metals
+.metals/
+.bloop/
+metals.sbt
+
+# Other build systems
+.gradle/
+build/
+
+# Checkpoints
+**/checkpoint/
+*_checkpoints/ 

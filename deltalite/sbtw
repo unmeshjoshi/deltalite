@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Check for Java version (must be JDK 11)
+JAVA_VERSION=$(java -version 2>&1 | grep -i version | sed 's/.*version "\([0-9]*\)\.[0-9]*\.[0-9]*\(_.*\)\{0,1\}".*/\1/g')
+
+if [ "$JAVA_VERSION" != "11" ]; then
+  echo "Error: JDK 11 is required to build this project. Current version: $JAVA_VERSION"
+  echo "Please install JDK 11 and ensure it's in your PATH."
+  exit 1
+else
+  echo "Using JDK 11 as required."
+fi
+
+# SBT version to download if not present
+SBT_VERSION="1.3.10"
+
+# Download location for SBT
+SBT_LAUNCHER_DIR="$HOME/.sbt/launchers/$SBT_VERSION"
+SBT_LAUNCHER_JAR="$SBT_LAUNCHER_DIR/sbt-launch.jar"
+
+# Download SBT if not already present
+if [ ! -f "$SBT_LAUNCHER_JAR" ]; then
+  echo "Downloading SBT $SBT_VERSION..."
+  mkdir -p "$SBT_LAUNCHER_DIR"
+  curl -L "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/$SBT_VERSION/sbt-launch-$SBT_VERSION.jar" -o "$SBT_LAUNCHER_JAR"
+  if [ $? -ne 0 ]; then
+    echo "Error downloading SBT. Please check your internet connection and try again."
+    exit 1
+  fi
+fi
+
+# Run SBT with the specified arguments
+java -Xms512M -Xmx1536M -Xss2M -XX:+UseG1GC -XX:ReservedCodeCacheSize=256M -Dsbt.log.noformat=true -jar "$SBT_LAUNCHER_JAR" "$@"
