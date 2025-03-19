@@ -293,6 +293,60 @@ class DeltaLiteTable(val path: String) {
       commitInfoOpt.orElse(Some((version, "UNKNOWN", 0L)))
     }
   }
+  
+  /**
+   * Read records from the table at a specific version (time travel).
+   * 
+   * @param version The version to read
+   * @tparam T The type to convert records to
+   * @param converter Function to convert from Map[String, String] to T
+   * @return Records in the table at the specified version
+   */
+  def timeTravel[T](
+      version: Long, 
+      converter: Map[String, String] => T
+  ): Seq[T] = {
+    // Validate version exists
+    val availableVersions = _deltaLog.listVersions()
+    if (version < 0 || !availableVersions.contains(version)) {
+      throw new IllegalArgumentException(
+        s"Version $version does not exist. Available versions: ${availableVersions.sorted.mkString(", ")}")
+    }
+    
+    // Get a snapshot at the requested version
+    val snapshot = new Snapshot(version, _deltaLog)
+    
+    // Read records from this snapshot
+    snapshot.state.readRecords(converter)
+  }
+  
+  /**
+   * Find records matching a predicate at a specific version (time travel).
+   * 
+   * @param version The version to read
+   * @tparam T The type to convert records to
+   * @param converter Function to convert from Map[String, String] to T
+   * @param predicate Function to filter records
+   * @return Matching records at the specified version
+   */
+  def timeTravelAndFind[T](
+      version: Long,
+      converter: Map[String, String] => T, 
+      predicate: T => Boolean
+  ): Seq[T] = {
+    // Validate version exists
+    val availableVersions = _deltaLog.listVersions()
+    if (version < 0 || !availableVersions.contains(version)) {
+      throw new IllegalArgumentException(
+        s"Version $version does not exist. Available versions: ${availableVersions.sorted.mkString(", ")}")
+    }
+    
+    // Get a snapshot at the requested version
+    val snapshot = new Snapshot(version, _deltaLog)
+    
+    // Find records from this snapshot
+    snapshot.state.findRecords(converter, predicate)
+  }
 }
 
 object DeltaLiteTable {

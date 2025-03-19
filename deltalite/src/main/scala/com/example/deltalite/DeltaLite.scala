@@ -1,17 +1,17 @@
 package com.example.deltalite
 
-import org.apache.spark.sql.SparkSession
+import com.example.deltalite.examples.TimeTravelExample
 import java.nio.file.{Files, Paths}
 
 object DeltaLite {
   def main(args: Array[String]): Unit = {
-    val spark = SparkSession.builder()
-      .appName("DeltaLite")
-      .master("local[*]")
-      .getOrCreate()
+    println("Starting DeltaLite Time Travel Example")
+    println("======================================")
     
-    println("Initialized DeltaLite with Spark " + spark.version)
+    // Run the time travel example
+    TimeTravelExample.main(args)
     
-    spark.stop()
+    println("======================================")
+    println("DeltaLite Time Travel Example completed")
   }
 }
